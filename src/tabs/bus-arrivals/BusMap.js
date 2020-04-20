@@ -1,5 +1,7 @@
 import React, { useState, useEffect} from 'react';
-import MapGl, {Popup, GeolocateControl} from 'react-map-gl';
+import MapGl, {Popup, GeolocateControl, Marker} from 'react-map-gl';
+
+import { getBusArrivalsByStop } from "./BusArrivalsService";
 
 
 const geolocateStyle = {
@@ -8,14 +10,16 @@ const geolocateStyle = {
   padding: '10px'
 };
 
+var busArrivalsRes;
+
 function BusMap() {
 
   const [viewport, setViewport] = useState({
     width: '100%',
     height: 'calc(100vh - 56px)',
     zoom: 15,
-    latitude: 0,
-    longitude: 0,
+    latitude: 33.748997,
+    longitude: -84.387985,
   });
 
   const [stopInfo, setStopInfo] = useState();
@@ -29,6 +33,17 @@ function BusMap() {
     } = event;
     console.log(features);
     console.log(lngLat);
+	
+	if(features[0] != undefined){
+		var stopClick = features[0].properties.stop_id;
+		console.log(stopClick);		//stop_id
+		if(stopClick != null) {
+			busArrivalsRes = getBusArrivalsByStop(stopClick);
+		}
+	}
+	
+	
+	
     try {
       if (features[0].sourceLayer == "stops") {
         const {
@@ -51,6 +66,8 @@ function BusMap() {
     }
   };
 
+  
+  
   const renderPopup = () => {
 
     return (
@@ -63,7 +80,7 @@ function BusMap() {
                 closeOnClick={false}
                 onClose={() => setStopInfo(null)}
             >
-              <div>{stopInfo.stop_name}</div>
+              <div>{stopInfo.stop_name} <br></br> <b>{stopInfo.stop_id}</b></div>
             </Popup>
         )
     );
