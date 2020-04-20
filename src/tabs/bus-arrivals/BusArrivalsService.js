@@ -49,7 +49,7 @@ export async function getBusArrivalsByStop(stop) {
 	
 	console.log(resp);
 	
-	return xmlHttp.resp;
+	return resp;
 
 	
 	/**

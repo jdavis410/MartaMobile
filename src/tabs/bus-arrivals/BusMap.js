@@ -11,6 +11,7 @@ const geolocateStyle = {
 };
 
 var busArrivalsRes;
+var busses = [];
 
 function BusMap() {
 
@@ -23,6 +24,8 @@ function BusMap() {
   });
 
   const [stopInfo, setStopInfo] = useState();
+  
+  const [busInfo, setBusInfo] = useState();
 
   const _onViewportChange = viewport => setViewport({...viewport})
 
@@ -39,12 +42,28 @@ function BusMap() {
 		console.log(stopClick);		//stop_id
 		if(stopClick != null) {
 			busArrivalsRes = getBusArrivalsByStop(stopClick);
+			console.log('Received answer from BusarrivalService');
+			console.log(busArrivalsRes);
+			
+			busArrivalsRes.then(resp => {
+				for(var i  = 0; i < resp.length; i++){
+					console.log(resp[i]);
+					
+					var temp = '{ "LATITUDE":' + resp[i].LATITUDE + ', "LONGITUDE":' + resp[i].LONGITUDE + '}';
+					busses.push(JSON.parse(temp));
+				}
+				console.log(busses[0].LATITUDE);
+			});
+			
+			//TODO make popups based on lat/long busses[i].LATITUDE, busses[i].LONGITUDE
+			
 		}
 	}
 	
 	
 	
     try {
+		
       if (features[0].sourceLayer == "stops") {
         const {
           stop_code,
@@ -60,10 +79,14 @@ function BusMap() {
           lat: lngLat[1]
         })
       }
+	  
+	  
 
     } catch (e) {
       setStopInfo(null)
     }
+	
+	
   };
 
   
@@ -83,8 +106,30 @@ function BusMap() {
               <div>{stopInfo.stop_name} <br></br> <b>{stopInfo.stop_id}</b></div>
             </Popup>
         )
+		
     );
   };
+  
+  const renderBusPopup = () => {
+	
+	var t = busses.pop();
+	if(t == undefined){
+		t = JSON.parse('{ "LATITUDE":' + 0 + ', "LONGITUDE":' + 0 + '}');
+	}
+	  
+	return (
+		
+		<Marker
+			longitude={t.LONGITUDE}
+			latitude={t.LATITUDE}
+			closeOnClick={false}
+		> 
+		 <img src="./bus.png" alt=""/>
+		</Marker>
+		
+	);
+  };
+	
 
   return (
       <div className="App">
@@ -100,9 +145,15 @@ function BusMap() {
               positionOptions={{enableHighAccuracy: true}}
               trackUserLocation={true}
           />
+		  
+		  
+			  
           {renderPopup()}
+			  {renderBusPopup()}
+		
         </MapGl>
       </div>
+	  
   );
 }
 
