@@ -1,12 +1,11 @@
 import React, { useState, useEffect} from 'react';
 import MapGl, {Popup, GeolocateControl, Marker} from 'react-map-gl';
-import { Redirect, BrowserRouter, Route } from "react-router-dom";
+import BusMap from "./BusMap";
+
+import busses from './BusMap'
 
 import { getBusArrivalsByStop } from "./BusArrivalsService";
-import RouteMap from "./RouteMap";
 
-
-var abs = require( 'math-abs' );
 
 const geolocateStyle = {
   float: 'left',
@@ -15,12 +14,9 @@ const geolocateStyle = {
 };
 
 var busArrivalsRes;
-export var busses = [];
-const routes = [];
-const times = [];
 
-function BusMap() {
 
+function RouteMap() {
 
   const [viewport, setViewport] = useState({
     width: '100%',
@@ -49,54 +45,17 @@ function BusMap() {
 		console.log(stopClick);		//stop_id
 		if(stopClick != null) {
 			busArrivalsRes = getBusArrivalsByStop(stopClick);
-			
-			console.log('Received answer from BusArrivalService');
+			console.log('Received answer from BusarrivalService');
 			console.log(busArrivalsRes);
 			
 			busArrivalsRes.then(resp => {
 				for(var i  = 0; i < resp.length; i++){
 					console.log(resp[i]);
 					
-					for(var j = 0; j < routes.length; j++){
-						routes.pop();
-					}
-					for(var j = 0; j < times.length; j++){
-						times.pop();
-					}
-					
 					var temp = '{ "LATITUDE":' + resp[i].LATITUDE + ', "LONGITUDE":' + resp[i].LONGITUDE + '}';
-					routes.push(resp[i].ROUTE);
-					console.log(routes[0]);
-					
 					busses.push(JSON.parse(temp));
-					
-					var tlong = lngLat[0];
-					var tlat = lngLat[1];
-					
-					var latdiff = abs(tlat) - abs(resp[i].LATITUDE);
-					var longdiff = abs(tlong) - abs(resp[i].LONGITUDE);
-					
-					var dist = abs(latdiff) + abs(longdiff);
-					
-					var time = 0;
-					
-					for(var j = 0.009; j < 2; j+= 0.009){
-						time++;
-						if(dist < j){
-							times.push(time);
-							break;
-						}
-					}
 				}
 				console.log(busses[0].LATITUDE);
-				
-				//this.props.history.push('./RouteMap');
-				
-				
-				
-				
-				
-				
 			});
 			
 			//TODO make popups based on lat/long busses[i].LATITUDE, busses[i].LONGITUDE
@@ -135,11 +94,10 @@ function BusMap() {
 
   
   
-  
   const renderPopup = () => {
-//console.log(routes[0]);
+
     return (
-        stopInfo && routes &&(
+        stopInfo && (
             <Popup
                 tipSize={5}
                 anchor="top"
@@ -148,8 +106,7 @@ function BusMap() {
                 closeOnClick={false}
                 onClose={() => setStopInfo(null)}
             >
-			
-              <div>{stopInfo.stop_name} <br></br> <p>Route: <b>{routes[0]}</b></p> <p>Arriving in: <b>{times[0]}</b></p></div>
+              <div>{stopInfo.stop_name} <br></br> <b>{stopInfo.stop_id}</b></div>
             </Popup>
         )
 		
@@ -183,7 +140,7 @@ function BusMap() {
             {...viewport}
             onViewportChange={_onViewportChange}
             onClick={handleClick}
-            mapStyle="mapbox://styles/jdavis410/ck7dlurt80ppy1is1ctxxxb4b"
+            mapStyle='mapbox://styles/mapbox/streets-v11'
             mapboxApiAccessToken={'pk.eyJ1IjoiamRhdmlzNDEwIiwiYSI6ImNrNzB1MHg5OTAwNWczbXF3MHpjYnMyZncifQ.B3T_bzVcUxuxp1QymoeegQ'}
         >
           <GeolocateControl
@@ -194,15 +151,13 @@ function BusMap() {
 		  
 		  
 			  
-          {renderPopup()}
-			  //{renderBusPopup()}
+          //{renderPopup()}
+			  {renderBusPopup()}
 		
         </MapGl>
-		
-		
       </div>
 	  
   );
 }
 
-export default BusMap;
+export default RouteMap;

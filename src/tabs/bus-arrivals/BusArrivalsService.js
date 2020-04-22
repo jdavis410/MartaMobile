@@ -40,28 +40,22 @@ export async function getBusArrivalsByStop(stop) {
             //return(xmlHttp.responseText);
 		var hi = 0;
     }
-    xmlHttp.open("GET", url + route_list[0].toString(), false); // true for asynchronous 
-    xmlHttp.send(null);
+    if(route_list[0] != undefined){
+		xmlHttp.open("GET", url + route_list[0].toString(), false); // true for asynchronous 
+		xmlHttp.send(null);
 	
-	resp = JSON.parse(xmlHttp.responseText);
+		resp = JSON.parse(xmlHttp.responseText);
+	}
+    
 	
-	
+	if(route_list[0] == undefined){
+		resp = [{"ROUTE":"No Routes Currently Servicing","LATITUDE":"0","LONGITUDE":"0"},{"ROUTE":"No Routes Currently Servicing","LATITUDE":"0","LONGITUDE":"0"}];
+	}
 	
 	console.log(resp);
 	
 	return resp;
 
 	
-	/**
-  let url = base_url + stop;
-  'http://developer.itsmarta.com/BRDRestService/BRDRestService.svc/GetAllBus',
-  let result = await axios.get(url)
-      .then((response) => {
-        return Promise.resolve(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-        return Promise.reject(error)
-      });
-  return result;*/
+	
 }
